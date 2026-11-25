@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red de Emergencia LoRa & Meshtastic | Chajanel, Sumpango — UMG</title>
+    <meta name="description" content="Diseño y validación de un sistema de comunicación de emergencia con redes de malla LoRa y Meshtastic para zonas rurales. Aldea Chajanel, Santa Marta, Sumpango, Guatemala.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', Arial, Tahoma, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* Paleta sincronizada con el póster científico:
+           Azul Marino Institucional: #0f294a
+           Turquesa Técnico: #0284c7 / #0369a1 / #38bdf8
+           Ámbar / Alerta UMG: #b45309 / #991b1b */
+        .hero-bg {
+            background: radial-gradient(circle at 85% 20%, rgba(2, 132, 199, 0.28), transparent 45%),
+                        radial-gradient(circle at 15% 80%, rgba(180, 83, 9, 0.16), transparent 40%),
+                        linear-gradient(135deg, #0a1d36 0%, #0f294a 55%, #12345c 100%);
+        }
+
+        .topographic-pattern {
+            background-image: radial-gradient(rgba(56, 189, 248, 0.12) 1px, transparent 1px);
+            background-size: 22px 22px;
+        }
+
+        @keyframes signalPulse {
+            0% { transform: scale(0.8); opacity: 0.85; }
+            100% { transform: scale(2.1); opacity: 0; }
+        }
+
+        .pulse-ring {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: signalPulse 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        .pulse-ring-delay {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: signalPulse 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) 1.2s infinite;
+        }
+
+        /* Scrollbar sutil para miniaturas del carrusel */
+        .thumbs-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .thumbs-scroll::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 999px;
+        }
+        .thumbs-scroll::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 999px;
+        }
+        .thumbs-scroll::-webkit-scrollbar-thumb:hover {
+            background: #0284c7;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-sky-200 selection:text-[#0f294a]">
+
+    <!-- NAVEGACIÓN FIJA -->
+    <nav class="sticky top-0 z-40 bg-[#0f294a]/95 backdrop-blur-md border-b border-sky-500/30 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="#inicio" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-full bg-white p-0.5 border border-[#b45309] flex items-center justify-center overflow-hidden shrink-0 shadow">
+                    <img src="./Umg.png" alt="UMG" class="w-full h-full object-contain"
+                         onerror="this.onerror=null; this.src='https://umg.edu.gt/img/Umg.png'; this.onerror=function(){this.style.display='none'; document.getElementById('nav-umg-svg').classList.remove('hidden');};">
+                    <svg id="nav-umg-svg" viewBox="0 0 100 100" class="w-full h-full hidden">
+                        <circle cx="50" cy="50" r="46" fill="#b91c1c" stroke="#b45309" stroke-width="4"/>
+                        <circle cx="50" cy="50" r="32" fill="#0066b2" stroke="#eab308" stroke-width="3"/>
+                        <text x="50" y="55" font-size="18" font-weight="800" fill="#ffffff" text-anchor="middle">UMG</text>
+                    </svg>
+                </div>
+                <div class="leading-tight">
+                    <span class="block text-white font-extrabold text-sm tracking-tight group-hover:text-sky-300 transition">LoRa Mesh • Guatemala</span>
+                    <span class="block text-[11px] text-sky-300 font-medium">Chajanel, Sumpango</span>
+                </div>
+            </a>
+
+            <!-- Enlaces Desktop -->
+            <div class="hidden md:flex items-center gap-6 text-xs font-semibold uppercase tracking-wider text-slate-200">
+                <a href="#galeria" class="hover:text-[#38bdf8] transition">Galería</a>
+                <a href="#ubicacion" class="hover:text-[#38bdf8] transition">Escenario Chajanel</a>
+                <a href="#resultados" class="hover:text-[#38bdf8] transition">Resultados</a>
+                <a href="#equipo" class="hover:text-[#38bdf8] transition">Investigadores</a>
+                <a href="#referencias" class="bg-[#0284c7] hover:bg-[#0369a1] text-white px-3.5 py-2 rounded-lg transition shadow">Referencias</a>
+            </div>
+
+            <!-- Botón Menú Móvil -->
+            <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition" aria-label="Abrir menú">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Menú Desplegable Móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-[#0a1d36] border-t border-sky-500/20 px-4 py-3 space-y-2 text-sm font-semibold text-slate-200">
+            <a href="#galeria" onclick="toggleMobileMenu()" class="block py-1.5 hover:text-sky-300">Galería del Proyecto (10 fotos)</a>
+            <a href="#ubicacion" onclick="toggleMobileMenu()" class="block py-1.5 hover:text-sky-300">Escenario: Chajanel, Sumpango</a>
+            <a href="#resultados" onclick="toggleMobileMenu()" class="block py-1.5 hover:text-sky-300">Resultados y Validación</a>
+            <a href="#equipo" onclick="toggleMobileMenu()" class="block py-1.5 hover:text-sky-300">Equipo Investigador</a>
+            <a href="#referencias" onclick="toggleMobileMenu()" class="block py-1.5 text-sky-300">Referencias Bibliográficas</a>
+        </div>
+    </nav>
+
+    <!-- HERO INSTITUCIONAL -->
+    <header id="inicio" class="hero-bg text-white relative overflow-hidden border-b-8 border-[#0284c7]">
+        <div class="topographic-pattern absolute inset-0 opacity-40 pointer-events-none"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+                <div class="flex-1 text-center lg:text-left">
+                    <div class="inline-flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-4">
+                        <span class="px-3 py-1 rounded-full bg-sky-500/20 border border-sky-400/40 text-sky-200 text-xs font-bold tracking-wider uppercase">
+                            915 MHz ISM • LoRa Mesh
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-bold tracking-wider uppercase">
+                            Cifrado AES-256 • Off-Grid
+                        </span>
+                    </div>
+
+                    <p class="text-[#38bdf8] font-bold tracking-widest uppercase text-xs mb-2">
+                        Universidad Mariano Gálvez de Guatemala • Maestría en Redes y Telecomunicaciones
+                    </p>
+
+                    <h1 class="text-2xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">
+                        Diseño y validación de un sistema de comunicación de emergencia con redes de malla LoRa y Meshtastic para zonas rurales
+                    </h1>
+
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-6">
+                        Prototipo autónomo de bajo costo diseñado, ensamblado y validado en campo bajo condiciones reales de vegetación densa y relieve montañoso en la <strong class="text-white">Aldea Chajanel, Santa Marta, Sumpango, Sacatepéquez</strong>, operando con independencia total de las redes celulares y eléctricas.
+                    </p>
+
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                        <a href="#galeria" class="bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold px-5 py-3 rounded-xl shadow-lg transition flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            Explorar Fotos de Campo
+                        </a>
+                        <a href="#ubicacion" class="bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold px-5 py-3 rounded-xl transition flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            Ver Escenario Chajanel
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Panel KPI estilo Póster -->
+                <div class="w-full lg:w-[410px] shrink-0 grid grid-cols-2 gap-3">
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 border-t-4 border-t-[#38bdf8] rounded-xl p-4 text-center shadow-lg">
+                        <span class="block text-3xl font-black text-white">100 %</span>
+                        <span class="block text-xs font-semibold text-sky-200 mt-1">Entrega (500–800 m)</span>
+                        <span class="block text-[11px] text-slate-300 mt-0.5">40/40 paquetes</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 border-t-4 border-t-[#0284c7] rounded-xl p-4 text-center shadow-lg">
+                        <span class="block text-3xl font-black text-white">80 %</span>
+                        <span class="block text-xs font-semibold text-sky-200 mt-1">Entrega a 1.5 km</span>
+                        <span class="block text-[11px] text-slate-300 mt-0.5">SNR promedio -3.0 dB</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 border-t-4 border-t-amber-500 rounded-xl p-4 text-center shadow-lg">
+                        <span class="block text-3xl font-black text-amber-300">4.0 s</span>
+                        <span class="block text-xs font-semibold text-amber-100 mt-1">Latencia Máxima</span>
+                        <span class="block text-[11px] text-slate-300 mt-0.5">R² = 0.970 (p &lt; 0.001)</span>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md border border-white/15 border-t-4 border-t-emerald-400 rounded-xl p-4 text-center shadow-lg">
+                        <span class="block text-3xl font-black text-emerald-300">&lt; 60 s</span>
+                        <span class="block text-xs font-semibold text-emerald-100 mt-1">Sincronización GPS</span>
+                        <span class="block text-[11px] text-slate-300 mt-0.5">Antena externa 1"</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-12 space-y-16">
+
+        <!-- SECCIÓN 1: CARRUSEL FOTOGRÁFICO (foto1.jpg a foto10.jpg) -->
+        <section id="galeria" class="scroll-mt-20">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+                <div>
+                    <span class="text-xs font-extrabold uppercase tracking-widest text-[#0284c7]">Evidencia Visual del Prototipo y Campo</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-[#0f294a] mt-1">Galería Fotográfica del Proyecto</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="slide-counter" class="text-xs font-bold bg-[#0f294a] text-white px-3 py-1.5 rounded-full">1 / 10</span>
+                    <button id="autoplay-btn" onclick="toggleAutoplay()" class="text-xs font-bold border border-slate-300 bg-white hover:bg-slate-100 text-[#0f294a] px-3 py-1.5 rounded-full transition flex items-center gap-1.5 shadow-sm">
+                        <span id="autoplay-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span id="autoplay-label">Auto: Activo</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contenedor Principal del Carrusel -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+                <!-- Escenario de Imagen -->
+                <div id="carousel-stage" class="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-[#0a1d36] overflow-hidden select-none group">
+                    <!-- Imagen actual -->
+                    <img id="carousel-main-img" src="./foto1.jpg" alt="Fotografía 1 del proyecto LoRa Meshtastic"
+                         class="w-full h-full object-contain transition-opacity duration-300 cursor-zoom-in"
+                         onclick="openLightbox()"
+                         onerror="handleSlideError()">
+
+                    <!-- Respaldo elegante si la foto aún no ha sido subida a GitHub -->
+                    <div id="carousel-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#0f294a] via-[#13355e] to-[#0a1d36] text-white">
+                        <div class="w-16 h-16 rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <span id="fallback-filename" class="font-mono text-sm font-bold bg-sky-500/20 text-sky-200 px-3 py-1 rounded-full border border-sky-400/30 mb-2">foto1.jpg</span>
+                        <p id="fallback-title" class="text-lg font-bold text-white max-w-md"></p>
+                        <p class="text-xs text-slate-300 mt-1 max-w-md">Sube el archivo con este nombre exacto en la misma carpeta del repositorio de GitHub para visualizarlo automáticamente aquí.</p>
+                    </div>
+
+                    <!-- Etiqueta superior de fase -->
+                    <div class="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 flex items-center gap-2">
+                        <span id="slide-phase" class="bg-[#0f294a]/90 backdrop-blur-sm text-[#38bdf8] border border-sky-400/30 text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow">
+                            Fase 1 • Hardware
+                        </span>
+                    </div>
+
+                    <!-- Botón Pantalla Completa -->
+                    <button onclick="openLightbox()" title="Ampliar fotografía" class="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 bg-[#0f294a]/80 hover:bg-[#0284c7] text-white p-2 rounded-full backdrop-blur-sm border border-white/20 transition shadow">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                        </svg>
+                    </button>
+
+                    <!-- Flechas Navegación -->
+                    <button onclick="changeSlide(-1)" aria-label="Foto anterior" class="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0f294a]/80 hover:bg-[#0284c7] text-white flex items-center justify-center backdrop-blur-sm border border-white/20 shadow-lg transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button onclick="changeSlide(1)" aria-label="Foto siguiente" class="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0f294a]/80 hover:bg-[#0284c7] text-white flex items-center justify-center backdrop-blur-sm border border-white/20 shadow-lg transition">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+
+                <!-- Pie descriptivo de la fotografía -->
+                <div class="px-5 py-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h3 id="slide-title" class="text-base font-bold text-[#0f294a]"></h3>
+                        <p id="slide-desc" class="text-xs sm:text-sm text-slate-600 mt-0.5"></p>
+                    </div>
+                    <span id="slide-file-badge" class="self-start sm:self-center font-mono text-[11px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded">foto1.jpg</span>
+                </div>
+
+                <!-- Tira de 10 Miniaturas -->
+                <div class="bg-slate-50 px-4 py-3 border-t border-slate-200">
+                    <div id="carousel-thumbs" class="flex items-center gap-2.5 overflow-x-auto thumbs-scroll pb-1"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: ESCENARIO DE CAMPO CREATIVO — ALDEA CHAJANEL, SANTA MARTA, SUMPANGO -->
+        <section id="ubicacion" class="scroll-mt-20">
+            <div class="mb-6">
+                <span class="text-xs font-extrabold uppercase tracking-widest text-[#b45309]">Contexto Geográfico y Propagación Electromagnética</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-[#0f294a] mt-1">Escenario de Validación: Aldea Chajanel, Santa Marta, Sumpango</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <!-- Tarjeta Geográfica y Mapa -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden flex flex-col justify-between">
+                    <div class="bg-[#0f294a] text-white px-5 py-4 border-b-4 border-[#0284c7]">
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <p class="text-[11px] font-bold uppercase tracking-widest text-sky-300">Sacatepéquez, Guatemala</p>
+                                <h3 class="text-lg font-extrabold">Aldea Chajanel • Sector Santa Marta</h3>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[11px] font-bold">
+                                Sin Cobertura Celular
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Las pruebas de campo cuasi-experimentales se ejecutaron durante tres jornadas en el entorno rural de <strong>Chajanel, Aldea Santa Marta, municipio de Sumpango</strong>. El sitio fue seleccionado estratégicamente por representar la realidad crítica del país: laderas escarpadas, relieve volcánico, cobertura móvil nula y denso follaje boscoso que obstruye la primera zona de Fresnel.
+                        </p>
+
+                        <!-- Atributos del terreno -->
+                        <div class="grid grid-cols-2 gap-2.5 text-xs">
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                                <span class="block text-[10px] font-bold uppercase text-slate-500">Municipio / Depto.</span>
+                                <span class="font-bold text-[#0f294a] mt-0.5 block">Sumpango, Sacatepéquez</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                                <span class="block text-[10px] font-bold uppercase text-slate-500">Obstáculo Físico</span>
+                                <span class="font-bold text-[#0f294a] mt-0.5 block">Vegetación densa y laderas</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                                <span class="block text-[10px] font-bold uppercase text-slate-500">Banda Evaluada</span>
+                                <span class="font-bold text-[#0284c7] mt-0.5 block">915 MHz ISM (Libre)</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                                <span class="block text-[10px] font-bold uppercase text-slate-500">Aval Comunitario</span>
+                                <span class="font-bold text-emerald-700 mt-0.5 block">COCODE y Municipalidad</span>
+                            </div>
+                        </div>
+
+                        <!-- Mapa embebido OpenStreetMap centrado en Santa Marta / Sumpango -->
+                        <div class="rounded-xl overflow-hidden border border-slate-300 shadow-inner">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m13!1m8!1m3!1d2835.9136659803485!2d-90.73991092128645!3d14.66719964073139!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTTCsDM5JzI4LjgiTiA5MMKwNDQnMTMuMiJX!5e1!3m2!1ses-419!2sus!4v1795638362996!5m2!1ses-419!2sus" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                            <div class="bg-slate-100 px-3 py-2 flex items-center justify-between text-[11px]">
+                                <span class="text-slate-600 font-medium">Región de Sumpango • Aldea Santa Marta</span>
+                                <a href="https://www.google.com/maps/search/Aldea+Santa+Marta,+Sumpango,+Sacatepequez,+Guatemala" target="_blank" rel="noopener noreferrer" class="text-[#0284c7] hover:underline font-bold">
+                                    Abrir en Google Maps ↗
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explorador Interactivo del Perfil Topográfico y Enlace RF en Chajanel -->
+                <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden flex flex-col justify-between">
+                    <div class="bg-[#0369a1] text-white px-5 py-4 border-b-4 border-[#0f294a] flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <p class="text-[11px] font-bold uppercase tracking-widest text-sky-200">Simulador de Mediciones Reales en Campo</p>
+                            <h3 class="text-lg font-extrabold">Perfil de Enlace LoRa en Chajanel (500 m – 1.5 km)</h3>
+                        </div>
+                        <span class="text-xs font-mono bg-[#0f294a] text-sky-300 px-3 py-1 rounded-full font-bold">
+                            n = 80 transmisiones
+                        </span>
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col justify-between space-y-5">
+                        <!-- Selector de distancia radial -->
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Selecciona un punto de control radial desde el Nodo Central Solar:</p>
+                            <div class="grid grid-cols-4 gap-2" id="distance-selector">
+                                <button onclick="selectDistance(0)" data-dist-idx="0" class="dist-btn py-2.5 px-2 rounded-xl font-extrabold text-sm border-2 transition cursor-pointer">500 m</button>
+                                <button onclick="selectDistance(1)" data-dist-idx="1" class="dist-btn py-2.5 px-2 rounded-xl font-extrabold text-sm border-2 transition cursor-pointer">800 m</button>
+                                <button onclick="selectDistance(2)" data-dist-idx="2" class="dist-btn py-2.5 px-2 rounded-xl font-extrabold text-sm border-2 transition cursor-pointer">1,000 m</button>
+                                <button onclick="selectDistance(3)" data-dist-idx="3" class="dist-btn py-2.5 px-2 rounded-xl font-extrabold text-sm border-2 transition cursor-pointer">1,500 m</button>
+                            </div>
+                        </div>
+
+                        <!-- Visualización Topográfica SVG Dinámica -->
+                        <div class="rounded-xl bg-gradient-to-b from-[#0a1d36] via-[#102d52] to-[#133b69] p-3 border border-slate-700 relative overflow-hidden">
+                            <svg viewBox="0 0 640 215" class="w-full h-auto">
+                                <defs>
+                                    <linearGradient id="hillGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#14532d"/>
+                                        <stop offset="100%" stop-color="#052e16"/>
+                                    </linearGradient>
+                                    <linearGradient id="fresnelGrad" x1="0" y1="0" x2="1" y2="0">
+                                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.38"/>
+                                        <stop offset="50%" stop-color="#0284c7" stop-opacity="0.18"/>
+                                        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.38"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <!-- Estrellas / rejilla sutil -->
+                                <line x1="20" y1="45" x2="620" y2="45" stroke="#38bdf8" stroke-opacity="0.12" stroke-dasharray="4,4"/>
+                                <line x1="20" y1="95" x2="620" y2="95" stroke="#38bdf8" stroke-opacity="0.12" stroke-dasharray="4,4"/>
+                                <line x1="20" y1="145" x2="620" y2="145" stroke="#38bdf8" stroke-opacity="0.12" stroke-dasharray="4,4"/>
+
+                                <!-- Montañas de fondo (Sumpango) -->
+                                <path d="M0,185 Q120,105 250,155 T490,130 T640,170 L640,215 L0,215 Z" fill="#0f294a" opacity="0.65"/>
+
+                                <!-- Primera Zona de Fresnel dinámica -->
+                                <path id="svg-fresnel" d="M 75,88 Q 225,40 375,112 Q 225,145 75,88 Z" fill="url(#fresnelGrad)" stroke="#38bdf8" stroke-opacity="0.45" stroke-dasharray="5,4"/>
+
+                                <!-- Línea directa de enlace RF -->
+                                <line id="svg-link-line" x1="75" y1="88" x2="235" y2="122" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="6,4"/>
+
+                                <!-- Terreno boscoso en primer plano (Chajanel) -->
+                                <path d="M0,145 Q75,120 155,148 T335,142 T510,158 T640,140 L640,215 L0,215 Z" fill="url(#hillGrad)"/>
+
+                                <!-- Siluetas de árboles / follaje denso -->
+                                <g fill="#166534" opacity="0.9">
+                                    <polygon points="150,148 162,115 174,148"/>
+                                    <polygon points="170,150 184,112 198,150"/>
+                                    <polygon points="245,146 258,108 271,146"/>
+                                    <polygon points="266,149 282,102 298,149"/>
+                                    <polygon points="355,146 370,106 385,146"/>
+                                    <polygon points="382,150 396,112 410,150"/>
+                                    <polygon points="455,154 470,114 485,154"/>
+                                    <polygon points="482,158 498,118 514,158"/>
+                                </g>
+
+                                <!-- Nodo Central Solar (Router) -->
+                                <g transform="translate(75, 88)">
+                                    <circle cx="0" cy="0" r="14" fill="none" stroke="#38bdf8" stroke-width="2" class="pulse-ring"/>
+                                    <circle cx="0" cy="0" r="14" fill="none" stroke="#38bdf8" stroke-width="1.5" class="pulse-ring-delay"/>
+                                    <line x1="0" y1="0" x2="0" y2="40" stroke="#e2e8f0" stroke-width="3"/>
+                                    <rect x="-12" y="18" width="24" height="12" rx="2" fill="#0284c7" stroke="#fbbf24" stroke-width="1.5"/>
+                                    <circle cx="0" cy="0" r="6" fill="#fbbf24" stroke="#ffffff" stroke-width="2"/>
+                                    <text x="0" y="-16" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="800">ROUTER SOLAR</text>
+                                    <text x="0" y="54" text-anchor="middle" fill="#cbd5e1" font-size="8.5" font-weight="600">Nodo Central (0 m)</text>
+                                </g>
+
+                                <!-- Nodo Móvil Cliente (se mueve según la distancia elegida) -->
+                                <g id="svg-client-node" transform="translate(235, 122)">
+                                    <circle cx="0" cy="0" r="12" fill="none" stroke="#34d399" stroke-width="2" class="pulse-ring"/>
+                                    <line x1="0" y1="0" x2="0" y2="26" stroke="#e2e8f0" stroke-width="2.5"/>
+                                    <circle cx="0" cy="0" r="6" fill="#10b981" stroke="#ffffff" stroke-width="2"/>
+                                    <rect x="-44" y="-34" width="88" height="22" rx="6" fill="#0f294a" stroke="#38bdf8" stroke-width="1.2"/>
+                                    <text id="svg-client-label" x="0" y="-20" text-anchor="middle" fill="#38bdf8" font-size="9.5" font-weight="800">CLIENT • 500 m</text>
+                                </g>
+
+                                <!-- Etiqueta de distancia en el suelo -->
+                                <text x="320" y="202" text-anchor="middle" fill="#bbf7d0" font-size="10" font-weight="700" letter-spacing="1">
+                                    ALDEA CHAJANEL • VEGETACIÓN DENSA Y OROGRAFÍA IRREGULAR (915 MHz)
+                                </text>
+                            </svg>
+                        </div>
+
+                        <!-- Tarjetas de métricas dinámicas para la distancia seleccionada -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                                <span class="block text-[10px] font-bold uppercase text-slate-500">Tasa de Entrega</span>
+                                <span id="metric-pdr" class="block text-xl font-black text-[#0369a1] mt-0.5">100 %</span>
+                                <span id="metric-pkts" class="block text-[10px] text-slate-500">20 / 20 mensajes</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                                <span class="block text-[10px] font-bold uppercase text-slate-500">RSSI Promedio</span>
+                                <span id="metric-rssi" class="block text-xl font-black text-[#991b1b] mt-0.5">-86.5 dBm</span>
+                                <span class="block text-[10px] text-slate-500">Intensidad RF</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                                <span class="block text-[10px] font-bold uppercase text-slate-500">SNR Promedio</span>
+                                <span id="metric-snr" class="block text-xl font-black text-[#0284c7] mt-0.5">+8.5 dB</span>
+                                <span class="block text-[10px] text-slate-500">Relación Señal-Ruido</span>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                                <span class="block text-[10px] font-bold uppercase text-slate-500">Latencia Est.</span>
+                                <span id="metric-lat" class="block text-xl font-black text-[#b45309] mt-0.5">~806 ms</span>
+                                <span class="block text-[10px] text-slate-500">Modelo lineal</span>
+                            </div>
+                        </div>
+
+                        <!-- Nota contextual dinámica -->
+                        <div id="metric-note" class="bg-sky-50 border-l-4 border-[#0284c7] p-3.5 rounded-r-xl text-xs text-slate-700 leading-relaxed">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: RESUMEN TÉCNICO Y VALIDACIÓN INFERENCIAL -->
+        <section id="resultados" class="scroll-mt-20">
+            <div class="bg-[#0f294a] text-white rounded-2xl p-6 sm:p-8 shadow-xl border-b-8 border-[#0284c7]">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 space-y-4">
+                        <span class="text-xs font-extrabold uppercase tracking-widest text-[#38bdf8]">Arquitectura y Rigor Estadístico</span>
+                        <h2 class="text-2xl font-extrabold leading-tight">Hardware Autónomo y Validación Inferencial</h2>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            La red se ensambló con cuatro módulos <strong>T-Beam (ESP32 + Semtech SX1276 + GPS NEO-6M)</strong> encapsulados para intemperie. Los tres nodos móviles integraron <strong>antenas GPS externas de 1 pulgada</strong> y baterías recargables <strong>Steren 18650 (2200 mAh)</strong>, mientras el nodo central operó como <em>Router</em> solar sin GPS para dedicar el 100 % de su capacidad a la retransmisión encriptada bajo <strong>AES-256</strong>.
+                        </p>
+                        <div class="bg-white/10 border border-white/15 rounded-xl p-4 text-xs text-slate-200 leading-relaxed">
+                            <strong class="text-amber-300 uppercase tracking-wider block mb-1">Aclaración Metodológica Clave (1.5 km):</strong>
+                            La distancia máxima evaluada de 1.5 km correspondió al <strong>límite logístico de movilidad terrestre y accesibilidad del terreno</strong> en Chajanel, no a la ruptura técnica del radioenlace, el cual se mantuvo operativo al 80 % de entrega incluso bajo un SNR promedio negativo (-3.0 dB).
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 bg-white text-slate-800 rounded-xl p-5 shadow-lg space-y-3">
+                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#0f294a] border-b border-slate-200 pb-2">
+                            Validación Inferencial de Latencia (n = 75)
+                        </h3>
+                        <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
+                            <span class="block text-[10px] font-bold uppercase text-slate-500">Modelo de Regresión Lineal</span>
+                            <span class="block font-mono text-base font-extrabold text-[#991b1b] mt-0.5">Y = -808.97 + 3.23X</span>
+                            <span class="block text-xs font-bold text-[#0f294a] mt-1">R² = 0.970 &nbsp;|&nbsp; r = 0.985 (p &lt; 0.001)</span>
+                        </div>
+                        <ul class="text-xs space-y-2 text-slate-700">
+                            <li class="flex items-start gap-2">
+                                <span class="text-[#0284c7] font-bold">✓</span>
+                                <span><strong>ANOVA Unidireccional:</strong> <span class="font-semibold text-[#0369a1]">F(3, 71) = 142.8, p &lt; 0.001</span> (diferencias significativas entre distancias).</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-[#0284c7] font-bold">✓</span>
+                                <span><strong>Supuestos Paramétricos:</strong> Normalidad (Shapiro-Wilk, <em>p</em> &gt; 0.05) y Homocedasticidad (Levene, <em>p</em> &gt; 0.05).</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-[#0284c7] font-bold">✓</span>
+                                <span><strong>Varianza Explicada:</strong> El 97.0 % del incremento en la latencia se explica linealmente por la distancia entre nodos.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: CREADORES DE LA INVESTIGACIÓN (4 AUTORES CON ESPACIO PARA FOTO) -->
+        <section id="equipo" class="scroll-mt-20">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="text-xs font-extrabold uppercase tracking-widest text-[#0284c7]">Maestría en Redes y Telecomunicaciones • UMG</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-[#0f294a] mt-1">Equipo Investigador</h2>
+                <p class="text-sm text-slate-600 mt-2">
+                    Autores responsables del diseño, ensamblaje de hardware, despliegue en la aldea Chajanel y validación estadística del prototipo LoRa/Meshtastic.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Autor 1 -->
+                <article class="bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-xl transition overflow-hidden flex flex-col">
+                    <div class="h-16 bg-gradient-to-r from-[#0f294a] to-[#0369a1]"></div>
+                    <div class="px-5 pb-6 -mt-12 flex flex-col items-center text-center flex-1">
+                        <div class="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-lg overflow-hidden flex items-center justify-center relative">
+                            <img src="./autor1.jpg" alt="Axel Cristofer García Cox" class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <div class="hidden w-full h-full bg-gradient-to-br from-[#0f294a] to-[#0284c7] text-white flex flex-col items-center justify-center">
+                                <span class="text-2xl font-black tracking-tight">AG</span>
+                                <span class="text-[9px] font-mono text-sky-200">autor1.jpg</span>
+                            </div>
+                        </div>
+                        <h3 class="mt-3 text-base font-extrabold text-[#0f294a] leading-snug">Axel Cristofer García Cox</h3>
+                        <span class="mt-1 text-[11px] font-bold uppercase tracking-wider text-[#0284c7]">Investigador • Posgrado UMG</span>
+                        <a href="mailto:agarciac24@miumg.edu.gt" class="mt-3 text-xs text-slate-600 hover:text-[#0284c7] font-medium break-all bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg w-full transition">
+                            agarciac24@miumg.edu.gt
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Autor 2 -->
+                <article class="bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-xl transition overflow-hidden flex flex-col">
+                    <div class="h-16 bg-gradient-to-r from-[#0f294a] to-[#0284c7]"></div>
+                    <div class="px-5 pb-6 -mt-12 flex flex-col items-center text-center flex-1">
+                        <div class="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-lg overflow-hidden flex items-center justify-center relative">
+                            <img src="./autor2.jpg" alt="Maynor Fernando Juárez Alvarado" class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <div class="hidden w-full h-full bg-gradient-to-br from-[#0f294a] to-[#0284c7] text-white flex flex-col items-center justify-center">
+                                <span class="text-2xl font-black tracking-tight">MJ</span>
+                                <span class="text-[9px] font-mono text-sky-200">autor2.jpg</span>
+                            </div>
+                        </div>
+                        <h3 class="mt-3 text-base font-extrabold text-[#0f294a] leading-snug">Maynor Fernando Juárez Alvarado</h3>
+                        <span class="mt-1 text-[11px] font-bold uppercase tracking-wider text-[#0284c7]">Investigador • Posgrado UMG</span>
+                        <a href="mailto:mjuareza6@miumg.edu.gt" class="mt-3 text-xs text-slate-600 hover:text-[#0284c7] font-medium break-all bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg w-full transition">
+                            mjuareza6@miumg.edu.gt
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Autor 3 -->
+                <article class="bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-xl transition overflow-hidden flex flex-col">
+                    <div class="h-16 bg-gradient-to-r from-[#0369a1] to-[#0f294a]"></div>
+                    <div class="px-5 pb-6 -mt-12 flex flex-col items-center text-center flex-1">
+                        <div class="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-lg overflow-hidden flex items-center justify-center relative">
+                            <img src="./autor3.jpg" alt="Otto Adrián López Ventura" class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <div class="hidden w-full h-full bg-gradient-to-br from-[#0f294a] to-[#0284c7] text-white flex flex-col items-center justify-center">
+                                <span class="text-2xl font-black tracking-tight">OL</span>
+                                <span class="text-[9px] font-mono text-sky-200">autor3.jpg</span>
+                            </div>
+                        </div>
+                        <h3 class="mt-3 text-base font-extrabold text-[#0f294a] leading-snug">Otto Adrián López Ventura</h3>
+                        <span class="mt-1 text-[11px] font-bold uppercase tracking-wider text-[#0284c7]">Investigador • Posgrado UMG</span>
+                        <a href="mailto:olopezv6@miumg.edu.gt" class="mt-3 text-xs text-slate-600 hover:text-[#0284c7] font-medium break-all bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg w-full transition">
+                            olopezv6@miumg.edu.gt
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Autor 4 -->
+                <article class="bg-white rounded-2xl border border-slate-200 shadow-md hover:shadow-xl transition overflow-hidden flex flex-col">
+                    <div class="h-16 bg-gradient-to-r from-[#0284c7] to-[#0f294a]"></div>
+                    <div class="px-5 pb-6 -mt-12 flex flex-col items-center text-center flex-1">
+                        <div class="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-lg overflow-hidden flex items-center justify-center relative">
+                            <img src="./autor4.jpg" alt="Pedro Daniel Vásquez Chamalé" class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                            <div class="hidden w-full h-full bg-gradient-to-br from-[#0f294a] to-[#0284c7] text-white flex flex-col items-center justify-center">
+                                <span class="text-2xl font-black tracking-tight">PV</span>
+                                <span class="text-[9px] font-mono text-sky-200">autor4.jpg</span>
+                            </div>
+                        </div>
+                        <h3 class="mt-3 text-base font-extrabold text-[#0f294a] leading-snug">Pedro Daniel Vásquez Chamalé</h3>
+                        <span class="mt-1 text-[11px] font-bold uppercase tracking-wider text-[#0284c7]">Investigador • Posgrado UMG</span>
+                        <a href="mailto:pvasquezc@miumg.edu.gt" class="mt-3 text-xs text-slate-600 hover:text-[#0284c7] font-medium break-all bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg w-full transition">
+                            pvasquezc@miumg.edu.gt
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 5: REFERENCIAS BIBLIOGRÁFICAS (COMPLEMENTO DEL QR DEL PÓSTER) -->
+        <section id="referencias" class="scroll-mt-20">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+                <div class="bg-[#0f294a] text-white px-6 py-4 border-b-4 border-[#0284c7] flex items-center justify-between">
+                    <div>
+                        <span class="text-[11px] font-bold uppercase tracking-widest text-sky-300">Respaldo Científico del Póster</span>
+                        <h2 class="text-xl font-extrabold">Referencias Bibliográficas</h2>
+                    </div>
+                    <span class="text-xs font-bold bg-white/10 px-3 py-1 rounded-full text-sky-200">5 Fuentes</span>
+                </div>
+
+                <ol class="divide-y divide-slate-200 p-6 space-y-4 text-sm text-slate-700">
+                    <li class="pt-0 flex items-start justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+                            <p class="leading-relaxed">Farias, R., Silva, J., &amp; Oliveira, L. (2022). Implementation of LoRa mesh network for emergency communications. <em>IEEE Latin America Transactions</em>, 20(5), 780–788.</p>
+                        </div>
+                        <button onclick="copyRef(this, 'Farias, R., Silva, J., & Oliveira, L. (2022). Implementation of LoRa mesh network for emergency communications. IEEE Latin America Transactions, 20(5), 780–788.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                    </li>
+                    <li class="pt-4 flex items-start justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+                            <p class="leading-relaxed">Kaur, J., &amp; Sharma, R. (2021). Reliability analysis of LoRa-based networks in IoT applications. <em>Journal of IoT Systems</em>, 5(2), 77–89.</p>
+                        </div>
+                        <button onclick="copyRef(this, 'Kaur, J., & Sharma, R. (2021). Reliability analysis of LoRa-based networks in IoT applications. Journal of IoT Systems, 5(2), 77–89.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                    </li>
+                    <li class="pt-4 flex items-start justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+                            <p class="leading-relaxed">Martínez, C., Gómez, D., &amp; López, M. (2024). Open-source mesh networks for rural IoT deployments. <em>IEEE Internet of Things Journal</em>, 11(3), 1120–1131.</p>
+                        </div>
+                        <button onclick="copyRef(this, 'Martínez, C., Gómez, D., & López, M. (2024). Open-source mesh networks for rural IoT deployments. IEEE Internet of Things Journal, 11(3), 1120–1131.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                    </li>
+                    <li class="pt-4 flex items-start justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
+                            <p class="leading-relaxed">Pérez, E., &amp; Gómez, F. (2023). Evaluación del rendimiento de redes Meshtastic en entornos rurales de difícil acceso. <em>Revista Iberoamericana de Telecomunicaciones</em>, 12(1), 45–58.</p>
+                        </div>
+                        <button onclick="copyRef(this, 'Pérez, E., & Gómez, F. (2023). Evaluación del rendimiento de redes Meshtastic en entornos rurales de difícil acceso. Revista Iberoamericana de Telecomunicaciones, 12(1), 45–58.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                    </li>
+                    <li class="pt-4 flex items-start justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">5</span>
+                            <p class="leading-relaxed">Silva, A., Dos Santos, R., &amp; Pereira, M. (2021). LoRa-based architectures for disaster response and emergency relief. <em>Springer Wireless Networks</em>, 27(8), 5310–5322.</p>
+                        </div>
+                        <button onclick="copyRef(this, 'Silva, A., Dos Santos, R., & Pereira, M. (2021). LoRa-based architectures for disaster response and emergency relief. Springer Wireless Networks, 27(8), 5310–5322.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PIE DE PÁGINA INSTITUCIONAL -->
+    <footer class="bg-[#0f294a] text-slate-300 border-t-4 border-[#0284c7] py-8 px-4">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div>
+                <p class="text-white font-extrabold text-sm">Universidad Mariano Gálvez de Guatemala</p>
+                <p class="text-xs text-sky-300">Facultad de Ingeniería en Sistemas de Información • Maestría en Redes y Telecomunicaciones</p>
+            </div>
+            <div class="text-xs text-slate-400 sm:text-right">
+                <p class="font-semibold text-slate-200">Aldea Chajanel, Santa Marta, Sumpango, Sacatepéquez</p>
+                <p>Guatemala, 2026 • Red de Emergencia LoRa / Meshtastic</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL LIGHTBOX PARA AMPLIAR FOTOS -->
+    <div id="lightbox" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeLightbox(event)">
+        <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition" aria-label="Cerrar vista ampliada">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+        <div class="max-w-5xl w-full flex flex-col items-center" onclick="event.stopPropagation()">
+            <img id="lightbox-img" src="" alt="Vista ampliada" class="max-h-[80vh] w-auto rounded-xl shadow-2xl border border-white/15 object-contain">
+            <p id="lightbox-caption" class="text-white text-sm font-semibold mt-4 text-center"></p>
+        </div>
+    </div>
+
+    <script>
+        /* =====================================================================
+           CONFIGURACIÓN DE LAS 10 FOTOGRAFÍAS (foto1.jpg hasta foto10.jpg)
+           Puedes editar fácilmente los títulos y descripciones aquí abajo.
+        ===================================================================== */
+        const slides = [
+            {
+                file: "foto1.jpg",
+                phase: "Fase 1 • Hardware",
+                title: "Ensamblaje de nodos T-Beam (ESP32 + LoRa SX1276)",
+                desc: "Integración de los cuatro módulos de desarrollo con transceptores de radiofrecuencia en la banda libre de 915 MHz."
+            },
+            {
+                file: "foto2.jpg",
+                phase: "Fase 1 • Hardware",
+                title: "Modificación de antenas GPS externas de 1 pulgada",
+                desc: "Sustitución de las antenas cerámicas de fábrica para optimizar la adquisición satelital en frío (TTFF menor a 60 s)."
+            },
+            {
+                file: "foto3.jpg",
+                phase: "Fase 1 • Energía",
+                title: "Autonomía Off-Grid: baterías 18650 y nodo central solar",
+                desc: "Alimentación con celdas Steren 18650 de 2200 mAh en nodos móviles y panel solar fotovoltaico en el enrutador central."
+            },
+            {
+                file: "foto4.jpg",
+                phase: "Fase 2 • Red",
+                title: "Configuración lógica del firmware Meshtastic y cifrado AES-256",
+                desc: "Parametrización de roles asimétricos (Router sin GPS y Clients) sobre un canal privado encriptado de extremo a extremo."
+            },
+            {
+                file: "foto5.jpg",
+                phase: "Fase 3 • Campo",
+                title: "Instalación del nodo central en Aldea Chajanel, Sumpango",
+                desc: "Despliegue del punto de convergencia estacionario en el sector Santa Marta bajo condiciones reales sin señal celular."
+            },
+            {
+                file: "foto6.jpg",
+                phase: "Fase 3 • Campo",
+                title: "Entorno de vegetación densa y relieve irregular",
+                desc: "Caracterización de la biomasa forestal y pendientes volcánicas que obstruyen la primera zona de Fresnel."
+            },
+            {
+                file: "foto7.jpg",
+                phase: "Fase 3 • Pruebas",
+                title: "Ensayos de transmisión radial a 500 m y 800 m",
+                desc: "Validación de los primeros puntos de control alcanzando una tasa de entrega perfecta del 100 % sin pérdida de paquetes."
+            },
+            {
+                file: "foto8.jpg",
+                phase: "Fase 3 • Pruebas",
+                title: "Evaluación de alcance a 1.0 km y 1.5 km en bosque",
+                desc: "Registro de métricas hasta el límite logístico de accesibilidad terrestre manteniendo un 80 % de efectividad."
+            },
+            {
+                file: "foto9.jpg",
+                phase: "Resultados • Telemetría",
+                title: "Captura de telemetría en tiempo real (RSSI, SNR y Latencia)",
+                desc: "Monitoreo mediante la interfaz Meshtastic y registro sistemático en la Hoja de Registro Experimental (n = 80)."
+            },
+            {
+                file: "foto10.jpg",
+                phase: "Equipo • Cierre",
+                title: "Validación final del equipo investigador en Chajanel",
+                desc: "Cierre de jornadas de campo en Aldea Santa Marta, Sumpango, confirmando la resiliencia del prototipo autónomo."
+            }
+        ];
+
+        /* =====================================================================
+           DATOS DEL SIMULADOR INTERACTIVO DE CHAJANEL (DATOS EXACTOS DEL ESTUDIO)
+        ===================================================================== */
+        const distanceData = [
+            {
+                label: "500 m",
+                pdr: "100 %",
+                pkts: "20 / 20 mensajes",
+                rssi: "-86.5 dBm",
+                snr: "+8.5 dB",
+                lat: "~806 ms",
+                clientX: 215,
+                clientY: 122,
+                note: "<strong>Enlace óptimo en corto alcance (500 m):</strong> Recepción íntegra del 100 % de los mensajes y coordenadas GPS con margen positivo de señal sobre el ruido (+8.5 dB) y latencia inferior a 1 segundo."
+            },
+            {
+                label: "800 m",
+                pdr: "100 %",
+                pkts: "20 / 20 mensajes",
+                rssi: "-96.5 dBm",
+                snr: "+6.5 dB",
+                lat: "~1,775 ms",
+                clientX: 335,
+                clientY: 118,
+                note: "<strong>Estabilidad sostenida a 800 m:</strong> Pese a una atenuación adicional de 10 dB por el follaje de Chajanel, la red mantiene 100 % de efectividad de entrega sin desconexiones."
+            },
+            {
+                label: "1,000 m",
+                pdr: "95 %",
+                pkts: "19 / 20 mensajes",
+                rssi: "-106.5 dBm",
+                snr: "+3.5 dB",
+                lat: "~2,421 ms",
+                clientX: 435,
+                clientY: 128,
+                note: "<strong>Alta resiliencia al superar el kilómetro (1,000 m):</strong> La absorción por biomasa reduce el SNR a +3.5 dB; sin embargo, 19 de 20 tramas encriptadas arriban satisfactoriamente al Router solar."
+            },
+            {
+                label: "1,500 m",
+                pdr: "80 %",
+                pkts: "16 / 20 mensajes",
+                rssi: "-116.5 dBm",
+                snr: "-3.0 dB",
+                lat: "4,000 ms (4.0 s)",
+                clientX: 555,
+                clientY: 120,
+                note: "<strong>Límite logístico evaluado (1.5 km):</strong> Incluso con SNR negativo (-3.0 dB promedio, por debajo del piso de ruido térmico), la modulación CSS de LoRa recupera el 80 % de los mensajes. El enlace seguía activo al alcanzar el límite físico de acceso del terreno."
+            }
+        ];
+
+        let currentSlide = 0;
+        let autoplayActive = true;
+        let autoplayTimer = null;
+        let currentImageLoaded = true;
+        let touchStartX = 0;
+
+        function initCarousel() {
+            const thumbsContainer = document.getElementById('carousel-thumbs');
+            thumbsContainer.innerHTML = '';
+
+            slides.forEach((slide, idx) => {
+                const btn = document.createElement('button');
+                btn.onclick = () => goToSlide(idx);
+                btn.id = `thumb-${idx}`;
+                btn.className = "relative shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition cursor-pointer bg-[#0f294a] flex items-center justify-center";
+                btn.innerHTML = `
+                    <img src="./${slide.file}" alt="Miniatura ${idx + 1}" class="w-full h-full object-cover"
+                         onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                    <div class="hidden w-full h-full flex flex-col items-center justify-center text-white px-1">
+                        <span class="text-xs font-extrabold text-sky-300">${idx + 1}</span>
+                        <span class="text-[9px] font-mono text-slate-300">${slide.file}</span>
+                    </div>
+                    <span class="absolute bottom-0.5 right-1 text-[9px] font-bold bg-black/70 text-white px-1 rounded">${idx + 1}</span>
+                `;
+                thumbsContainer.appendChild(btn);
+            });
+
+            renderSlide();
+            startAutoplay();
+
+            // Soporte de gestos táctiles (swipe) para móviles
+            const stage = document.getElementById('carousel-stage');
+            stage.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+            stage.addEventListener('touchend', (e) => {
+                const diff = touchStartX - e.changedTouches[0].screenX;
+                if (Math.abs(diff) > 40) changeSlide(diff > 0 ? 1 : -1);
+            }, { passive: true });
+
+            // Soporte de teclado
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') changeSlide(1);
+                if (e.key === 'ArrowLeft') changeSlide(-1);
+                if (e.key === 'Escape') closeLightbox();
+            });
+        }
+
+        function renderSlide() {
+            const slide = slides[currentSlide];
+            const img = document.getElementById('carousel-main-img');
+            const fallback = document.getElementById('carousel-fallback');
+
+            currentImageLoaded = true;
+            img.classList.remove('hidden');
+            fallback.classList.add('hidden');
+            img.src = `./${slide.file}`;
+            img.alt = slide.title;
+
+            document.getElementById('slide-counter').textContent = `${currentSlide + 1} / ${slides.length}`;
+            document.getElementById('slide-phase').textContent = slide.phase;
+            document.getElementById('slide-title').textContent = slide.title;
+            document.getElementById('slide-desc').textContent = slide.desc;
+            document.getElementById('slide-file-badge').textContent = slide.file;
+            document.getElementById('fallback-filename').textContent = slide.file;
+            document.getElementById('fallback-title').textContent = slide.title;
+
+            // Resaltar miniatura activa
+            slides.forEach((_, idx) => {
+                const thumb = document.getElementById(`thumb-${idx}`);
+                if (!thumb) return;
+                if (idx === currentSlide) {
+                    thumb.classList.add('border-[#0284c7]', 'ring-2', 'ring-sky-300', 'scale-105');
+                    thumb.classList.remove('border-slate-300', 'opacity-70');
+                    const thumbsContainer = document.getElementById('carousel-thumbs');
+if (thumbsContainer) {
+    const containerRect = thumbsContainer.getBoundingClientRect();
+    const thumbRect = thumb.getBoundingClientRect();
+    const offset = (thumbRect.left - containerRect.left) - (containerRect.width / 2) + (thumbRect.width / 2);
+    thumbsContainer.scrollTo({
+        left: thumbsContainer.scrollLeft + offset,
+        behavior: 'smooth'
+    });
+}
+                } else {
+                    thumb.classList.remove('border-[#0284c7]', 'ring-2', 'ring-sky-300', 'scale-105');
+                    thumb.classList.add('border-slate-300', 'opacity-70');
+                }
+            });
+        }
+
+        function handleSlideError() {
+            currentImageLoaded = false;
+            document.getElementById('carousel-main-img').classList.add('hidden');
+            document.getElementById('carousel-fallback').classList.remove('hidden');
+        }
+
+        function changeSlide(step) {
+            currentSlide = (currentSlide + step + slides.length) % slides.length;
+            renderSlide();
+            if (autoplayActive) resetAutoplay();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            renderSlide();
+            if (autoplayActive) resetAutoplay();
+        }
+
+        function startAutoplay() {
+            clearInterval(autoplayTimer);
+            autoplayTimer = setInterval(() => {
+                currentSlide = (currentSlide + 1) % slides.length;
+                renderSlide();
+            }, 5000);
+        }
+
+        function resetAutoplay() {
+            startAutoplay();
+        }
+
+        function toggleAutoplay() {
+            autoplayActive = !autoplayActive;
+            const dot = document.getElementById('autoplay-dot');
+            const label = document.getElementById('autoplay-label');
+            if (autoplayActive) {
+                startAutoplay();
+                dot.className = "w-2 h-2 rounded-full bg-emerald-500";
+                label.textContent = "Auto: Activo";
+            } else {
+                clearInterval(autoplayTimer);
+                dot.className = "w-2 h-2 rounded-full bg-slate-400";
+                label.textContent = "Auto: Pausado";
+            }
+        }
+
+        function openLightbox() {
+            if (!currentImageLoaded) return;
+            const slide = slides[currentSlide];
+            document.getElementById('lightbox-img').src = `./${slide.file}`;
+            document.getElementById('lightbox-caption').textContent = `${currentSlide + 1}/10 — ${slide.title}`;
+            document.getElementById('lightbox').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox(e) {
+            if (e && e.target !== document.getElementById('lightbox')) return;
+            document.getElementById('lightbox').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        /* =====================================================================
+           SIMULADOR INTERACTIVO DE PROPAGACIÓN EN CHAJANEL
+        ===================================================================== */
+        function selectDistance(index) {
+            const d = distanceData[index];
+
+            document.querySelectorAll('.dist-btn').forEach((btn, idx) => {
+                if (idx === index) {
+                    btn.className = "dist-btn py-2.5 px-2 rounded-xl font-extrabold text-sm border-2 transition cursor-pointer bg-[#0f294a] text-white border-[#0284c7] shadow-md";
+                } else {
+                    btn.className = "dist-btn py-2.5 px-2 rounded-xl font-extrabold text-sm border-2 transition cursor-pointer bg-slate-50 text-slate-700 border-slate-200 hover:border-sky-300";
+                }
+            });
+
+            // Actualizar SVG
+            const clientNode = document.getElementById('svg-client-node');
+            clientNode.setAttribute('transform', `translate(${d.clientX}, ${d.clientY})`);
+            document.getElementById('svg-client-label').textContent = `CLIENT • ${d.label}`;
+
+            const line = document.getElementById('svg-link-line');
+            line.setAttribute('x2', d.clientX);
+            line.setAttribute('y2', d.clientY);
+
+            const midX = (75 + d.clientX) / 2;
+            const topY = Math.min(88, d.clientY) - (26 + index * 10);
+            const botY = Math.max(88, d.clientY) + (26 + index * 10);
+            document.getElementById('svg-fresnel').setAttribute(
+                'd',
+                `M 75,88 Q ${midX},${topY} ${d.clientX},${d.clientY} Q ${midX},${botY} 75,88 Z`
+            );
+
+            // Actualizar tarjetas métricas
+            document.getElementById('metric-pdr').textContent = d.pdr;
+            document.getElementById('metric-pkts').textContent = d.pkts;
+            document.getElementById('metric-rssi').textContent = d.rssi;
+            document.getElementById('metric-snr').textContent = d.snr;
+            document.getElementById('metric-lat').textContent = d.lat;
+            document.getElementById('metric-note').innerHTML = d.note;
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function copyRef(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.textContent;
+                btn.textContent = '¡Copiado!';
+                btn.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-300');
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.classList.remove('bg-emerald-50', 'text-emerald-700', 'border-emerald-300');
+                }, 1800);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initCarousel();
+            selectDistance(3); // Inicia destacando la prueba completa de 1,500 m en Chajanel
+        });
+    </script>
+</body>
+</html>
