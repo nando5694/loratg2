@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Red de Emergencia LoRa & Meshtastic | Chajanel, Sumpango — UMG</title>
-    <meta name="description" content="Diseño y validación de un sistema de comunicación de emergencia con redes de malla LoRa y Meshtastic para zonas rurales. Aldea Chajanel, Santa Marta, Sumpango, Guatemala.">
+    <title>Red de Emergencia LoRa &amp; Meshtastic | Chajanel, Sumpango — UMG</title>
+    <meta name="description" content="Diseño y validación de un sistema de comunicación de emergencia con redes de malla LoRa y Meshtastic en zonas rurales con vegetación densa de Guatemala. Aldea Chajanel, Santa Marta, Sumpango.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -131,11 +131,11 @@
                     </p>
 
                     <h1 class="text-2xl sm:text-4xl font-extrabold leading-tight tracking-tight mb-4">
-                        Diseño y validación de un sistema de comunicación de emergencia con redes de malla LoRa y Meshtastic para zonas rurales
+                        Diseño y validación de un sistema de comunicación de emergencia con redes de malla LoRa y Meshtastic en zonas rurales con vegetación densa de Guatemala
                     </h1>
 
                     <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-6">
-                        Prototipo autónomo de bajo costo diseñado, ensamblado y validado en campo bajo condiciones reales de vegetación densa y relieve montañoso en la <strong class="text-white">Aldea Chajanel, Santa Marta, Sumpango, Sacatepéquez</strong>, operando con independencia total de las redes celulares y eléctricas.
+                        Prototipo autónomo de bajo costo (~Q 620/nodo) diseñado, ensamblado y validado en campo bajo condiciones reales de vegetación densa y relieve montañoso en la <strong class="text-white">Aldea Chajanel, Santa Marta, Sumpango, Sacatepéquez</strong>, operando con independencia total de las redes celulares y eléctricas.
                     </p>
 
                     <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3">
@@ -150,26 +150,26 @@
                     </div>
                 </div>
 
-                <!-- Panel KPI estilo Póster -->
+                <!-- Panel KPI sincronizado con el Póster y el ACM -->
                 <div class="w-full lg:w-[410px] shrink-0 grid grid-cols-2 gap-3">
                     <div class="bg-white/10 backdrop-blur-md border border-white/15 border-t-4 border-t-[#38bdf8] rounded-xl p-4 text-center shadow-lg">
                         <span class="block text-3xl font-black text-white">100 %</span>
-                        <span class="block text-xs font-semibold text-sky-200 mt-1">Entrega (500–800 m)</span>
-                        <span class="block text-[11px] text-slate-300 mt-0.5">40/40 paquetes</span>
+                        <span class="block text-xs font-semibold text-sky-200 mt-1">Entrega a 500 m</span>
+                        <span class="block text-[11px] text-slate-300 mt-0.5">95 % en 800 m – 1.0 km</span>
                     </div>
                     <div class="bg-white/10 backdrop-blur-md border border-white/15 border-t-4 border-t-[#0284c7] rounded-xl p-4 text-center shadow-lg">
                         <span class="block text-3xl font-black text-white">80 %</span>
                         <span class="block text-xs font-semibold text-sky-200 mt-1">Entrega a 1.5 km</span>
-                        <span class="block text-[11px] text-slate-300 mt-0.5">SNR promedio -3.0 dB</span>
+                        <span class="block text-[11px] text-slate-300 mt-0.5">74/80 total (92.5 %)</span>
                     </div>
                     <div class="bg-white/10 backdrop-blur-md border border-white/15 border-t-4 border-t-amber-500 rounded-xl p-4 text-center shadow-lg">
                         <span class="block text-3xl font-black text-amber-300">4.0 s</span>
                         <span class="block text-xs font-semibold text-amber-100 mt-1">Latencia Máxima</span>
-                        <span class="block text-[11px] text-slate-300 mt-0.5">R² = 0.970 (p &lt; 0.001)</span>
+                        <span class="block text-[11px] text-slate-300 mt-0.5">R² = 0.961 (p &lt; 0.001)</span>
                     </div>
                     <div class="bg-white/10 backdrop-blur-md border border-white/15 border-t-4 border-t-emerald-400 rounded-xl p-4 text-center shadow-lg">
-                        <span class="block text-3xl font-black text-emerald-300">&lt; 60 s</span>
-                        <span class="block text-xs font-semibold text-emerald-100 mt-1">Sincronización GPS</span>
+                        <span class="block text-3xl font-black text-emerald-300">50–55 s</span>
+                        <span class="block text-xs font-semibold text-emerald-100 mt-1">Fijación GPS (TTFF)</span>
                         <span class="block text-[11px] text-slate-300 mt-0.5">Antena externa 1"</span>
                     </div>
                 </div>
@@ -265,7 +265,7 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                <!-- Tarjeta Geográfica y Mapa -->
+                <!-- Tarjeta Geográfica y Mapa Satelital -->
                 <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden flex flex-col justify-between">
                     <div class="bg-[#0f294a] text-white px-5 py-4 border-b-4 border-[#0284c7]">
                         <div class="flex items-center justify-between gap-2">
@@ -304,11 +304,18 @@
                             </div>
                         </div>
 
-                        <!-- Mapa embebido OpenStreetMap centrado en Santa Marta / Sumpango -->
+                        <!-- Mapa satelital Google Maps centrado en el punto de pruebas de Chajanel -->
                         <div class="rounded-xl overflow-hidden border border-slate-300 shadow-inner">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m13!1m8!1m3!1d2835.9136659803485!2d-90.73991092128645!3d14.66719964073139!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTTCsDM5JzI4LjgiTiA5MMKwNDQnMTMuMiJX!5e1!3m2!1ses-419!2sus!4v1795638362996!5m2!1ses-419!2sus" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                            <iframe
+                                title="Vista satelital de Aldea Chajanel, Santa Marta, Sumpango"
+                                src="https://www.google.com/maps/embed?pb=!1m13!1m8!1m3!1d2835.9136659803485!2d-90.73991092128645!3d14.66719964073139!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTTCsDM5JzI4LjgiTiA5MMKwNDQnMTMuMiJX!5e1!3m2!1ses-419!2sus!4v1795638362996!5m2!1ses-419!2sus"
+                                class="w-full h-56 border-0"
+                                allowfullscreen=""
+                                loading="lazy"
+                                referrerpolicy="strict-origin-when-cross-origin">
+                            </iframe>
                             <div class="bg-slate-100 px-3 py-2 flex items-center justify-between text-[11px]">
-                                <span class="text-slate-600 font-medium">Región de Sumpango • Aldea Santa Marta</span>
+                                <span class="text-slate-600 font-medium">Vista Satelital • Aldea Chajanel, Santa Marta</span>
                                 <a href="https://www.google.com/maps/search/Aldea+Santa+Marta,+Sumpango,+Sacatepequez,+Guatemala" target="_blank" rel="noopener noreferrer" class="text-[#0284c7] hover:underline font-bold">
                                     Abrir en Google Maps ↗
                                 </a>
@@ -321,11 +328,11 @@
                 <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden flex flex-col justify-between">
                     <div class="bg-[#0369a1] text-white px-5 py-4 border-b-4 border-[#0f294a] flex flex-wrap items-center justify-between gap-3">
                         <div>
-                            <p class="text-[11px] font-bold uppercase tracking-widest text-sky-200">Simulador de Mediciones Reales en Campo</p>
+                            <p class="text-[11px] font-bold uppercase tracking-widest text-sky-200">Explorador de Mediciones Reales en Campo</p>
                             <h3 class="text-lg font-extrabold">Perfil de Enlace LoRa en Chajanel (500 m – 1.5 km)</h3>
                         </div>
                         <span class="text-xs font-mono bg-[#0f294a] text-sky-300 px-3 py-1 rounded-full font-bold">
-                            n = 80 transmisiones
+                            8 ensayos • 74/80 recibidos
                         </span>
                     </div>
 
@@ -412,27 +419,27 @@
                             </svg>
                         </div>
 
-                        <!-- Tarjetas de métricas dinámicas para la distancia seleccionada -->
+                        <!-- Tarjetas de métricas dinámicas con desviación estándar (DE) -->
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
                                 <span class="block text-[10px] font-bold uppercase text-slate-500">Tasa de Entrega</span>
                                 <span id="metric-pdr" class="block text-xl font-black text-[#0369a1] mt-0.5">100 %</span>
-                                <span id="metric-pkts" class="block text-[10px] text-slate-500">20 / 20 mensajes</span>
+                                <span id="metric-pkts" class="block text-[10px] text-slate-600">20 / 20 mensajes</span>
                             </div>
                             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
                                 <span class="block text-[10px] font-bold uppercase text-slate-500">RSSI Promedio</span>
                                 <span id="metric-rssi" class="block text-xl font-black text-[#991b1b] mt-0.5">-86.5 dBm</span>
-                                <span class="block text-[10px] text-slate-500">Intensidad RF</span>
+                                <span id="metric-rssi-sd" class="block text-[10px] text-slate-600">DE &plusmn; 2.1 dBm</span>
                             </div>
                             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
                                 <span class="block text-[10px] font-bold uppercase text-slate-500">SNR Promedio</span>
                                 <span id="metric-snr" class="block text-xl font-black text-[#0284c7] mt-0.5">+8.5 dB</span>
-                                <span class="block text-[10px] text-slate-500">Relación Señal-Ruido</span>
+                                <span id="metric-snr-sd" class="block text-[10px] text-slate-600">DE &plusmn; 0.7 dB</span>
                             </div>
                             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
-                                <span class="block text-[10px] font-bold uppercase text-slate-500">Latencia Est.</span>
-                                <span id="metric-lat" class="block text-xl font-black text-[#b45309] mt-0.5">~806 ms</span>
-                                <span class="block text-[10px] text-slate-500">Modelo lineal</span>
+                                <span class="block text-[10px] font-bold uppercase text-slate-500">Latencia Prom.</span>
+                                <span id="metric-lat" class="block text-xl font-black text-[#b45309] mt-0.5">875 ms</span>
+                                <span id="metric-lat-sd" class="block text-[10px] text-slate-600">DE &plusmn; 35.4 ms</span>
                             </div>
                         </div>
 
@@ -452,35 +459,35 @@
                         <span class="text-xs font-extrabold uppercase tracking-widest text-[#38bdf8]">Arquitectura y Rigor Estadístico</span>
                         <h2 class="text-2xl font-extrabold leading-tight">Hardware Autónomo y Validación Inferencial</h2>
                         <p class="text-sm text-slate-300 leading-relaxed">
-                            La red se ensambló con cuatro módulos <strong>T-Beam (ESP32 + Semtech SX1276 + GPS NEO-6M)</strong> encapsulados para intemperie. Los tres nodos móviles integraron <strong>antenas GPS externas de 1 pulgada</strong> y baterías recargables <strong>Steren 18650 (2200 mAh)</strong>, mientras el nodo central operó como <em>Router</em> solar sin GPS para dedicar el 100 % de su capacidad a la retransmisión encriptada bajo <strong>AES-256</strong>.
+                            La red se ensambló con cuatro módulos <strong>T-Beam (ESP32 + Semtech SX1276 + GPS NEO-6M)</strong> con un costo base estimado de <strong>~Q 620 por nodo</strong>, encapsulados para intemperie. Los tres nodos móviles integraron <strong>antenas GPS externas de 1 pulgada</strong> (TTFF verificado de 50–55 s) y baterías recargables <strong>Steren 18650 (2200 mAh)</strong>, mientras el nodo central operó como <em>Router</em> solar sin GPS dedicado al 100 % a la retransmisión cifrada con <strong>AES-256</strong>.
                         </p>
                         <div class="bg-white/10 border border-white/15 rounded-xl p-4 text-xs text-slate-200 leading-relaxed">
                             <strong class="text-amber-300 uppercase tracking-wider block mb-1">Aclaración Metodológica Clave (1.5 km):</strong>
-                            La distancia máxima evaluada de 1.5 km correspondió al <strong>límite logístico de movilidad terrestre y accesibilidad del terreno</strong> en Chajanel, no a la ruptura técnica del radioenlace, el cual se mantuvo operativo al 80 % de entrega incluso bajo un SNR promedio negativo (-3.0 dB).
+                            La distancia máxima evaluada de 1.5 km correspondió al <strong>límite logístico de movilidad terrestre y accesibilidad del terreno</strong> en Chajanel, no a la ruptura técnica del radioenlace, el cual sostuvo 80 % de entrega con un SNR promedio de -3.0 &plusmn; 1.4 dB (mínimo de -4 dB en la Prueba 8) y se autorrecuperó tras una breve desconexión en la Prueba 7.
                         </div>
                     </div>
 
                     <div class="lg:col-span-5 bg-white text-slate-800 rounded-xl p-5 shadow-lg space-y-3">
                         <h3 class="text-xs font-extrabold uppercase tracking-wider text-[#0f294a] border-b border-slate-200 pb-2">
-                            Validación Inferencial de Latencia (n = 75)
+                            Validación Inferencial de Latencia (<span class="normal-case italic">n</span> = 8 ensayos)
                         </h3>
                         <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
                             <span class="block text-[10px] font-bold uppercase text-slate-500">Modelo de Regresión Lineal</span>
-                            <span class="block font-mono text-base font-extrabold text-[#991b1b] mt-0.5">Y = -808.97 + 3.23X</span>
-                            <span class="block text-xs font-bold text-[#0f294a] mt-1">R² = 0.970 &nbsp;|&nbsp; r = 0.985 (p &lt; 0.001)</span>
+                            <span class="block font-mono text-base font-extrabold text-[#991b1b] mt-0.5">&#374; = -823.35 + 3.04X (ms)</span>
+                            <span class="block text-xs font-bold text-[#0f294a] mt-1">R&sup2; = 0.961 &nbsp;|&nbsp; r = 0.981 (p &lt; 0.001)</span>
                         </div>
                         <ul class="text-xs space-y-2 text-slate-700">
                             <li class="flex items-start gap-2">
                                 <span class="text-[#0284c7] font-bold">✓</span>
-                                <span><strong>ANOVA Unidireccional:</strong> <span class="font-semibold text-[#0369a1]">F(3, 71) = 142.8, p &lt; 0.001</span> (diferencias significativas entre distancias).</span>
+                                <span><strong>ANOVA Unidireccional:</strong> <span class="font-semibold text-[#0369a1]"><em>F</em>(3, 4) = 84.79, <em>p</em> &lt; 0.001</span> (diferencias significativas entre distancias).</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="text-[#0284c7] font-bold">✓</span>
-                                <span><strong>Supuestos Paramétricos:</strong> Normalidad (Shapiro-Wilk, <em>p</em> &gt; 0.05) y Homocedasticidad (Levene, <em>p</em> &gt; 0.05).</span>
+                                <span><strong>Supuestos del Modelo:</strong> Normalidad (Shapiro-Wilk: <em>W</em> = 0.896, <em>p</em> = 0.266) y Homocedasticidad (Bartlett: <em>T</em> = 2.004, <em>p</em> = 0.572).</span>
                             </li>
                             <li class="flex items-start gap-2">
                                 <span class="text-[#0284c7] font-bold">✓</span>
-                                <span><strong>Varianza Explicada:</strong> El 97.0 % del incremento en la latencia se explica linealmente por la distancia entre nodos.</span>
+                                <span><strong>Varianza Explicada (<em>R</em>&sup2;):</strong> El 96.1 % de la variabilidad de la latencia en el rango evaluado (500–1500 m) se explica linealmente por la distancia entre nodos (74/80 paquetes recibidos).</span>
                             </li>
                         </ul>
                     </div>
@@ -581,52 +588,67 @@
             </div>
         </section>
 
-        <!-- SECCIÓN 5: REFERENCIAS BIBLIOGRÁFICAS (COMPLEMENTO DEL QR DEL PÓSTER) -->
+        <!-- SECCIÓN 5: REFERENCIAS BIBLIOGRÁFICAS VERIFICADAS (2024–2026) -->
         <section id="referencias" class="scroll-mt-20">
             <div class="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
-                <div class="bg-[#0f294a] text-white px-6 py-4 border-b-4 border-[#0284c7] flex items-center justify-between">
+                <div class="bg-[#0f294a] text-white px-6 py-4 border-b-4 border-[#0284c7] flex items-center justify-between gap-3">
                     <div>
-                        <span class="text-[11px] font-bold uppercase tracking-widest text-sky-300">Respaldo Científico del Póster</span>
+                        <span class="text-[11px] font-bold uppercase tracking-widest text-sky-300">Respaldo Científico Verificado • Acceso Abierto</span>
                         <h2 class="text-xl font-extrabold">Referencias Bibliográficas</h2>
                     </div>
-                    <span class="text-xs font-bold bg-white/10 px-3 py-1 rounded-full text-sky-200">5 Fuentes</span>
+                    <span class="text-xs font-bold bg-white/10 px-3 py-1 rounded-full text-sky-200 shrink-0">5 Fuentes (2024–2026)</span>
                 </div>
 
                 <ol class="divide-y divide-slate-200 p-6 space-y-4 text-sm text-slate-700">
                     <li class="pt-0 flex items-start justify-between gap-4">
                         <div class="flex items-start gap-3">
                             <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
-                            <p class="leading-relaxed">Farias, R., Silva, J., &amp; Oliveira, L. (2022). Implementation of LoRa mesh network for emergency communications. <em>IEEE Latin America Transactions</em>, 20(5), 780–788.</p>
+                            <p class="leading-relaxed">
+                                Chapungo, N. J., &amp; Postolache, O. (2025). Experimental evaluation of LoRaWAN connectivity reliability in remote rural areas of Mozambique. <em>Sensors</em>, 25(19), 6027.
+                                <a href="https://doi.org/10.3390/s25196027" target="_blank" rel="noopener noreferrer" class="text-[#0284c7] hover:underline font-medium break-all">https://doi.org/10.3390/s25196027</a>
+                            </p>
                         </div>
-                        <button onclick="copyRef(this, 'Farias, R., Silva, J., & Oliveira, L. (2022). Implementation of LoRa mesh network for emergency communications. IEEE Latin America Transactions, 20(5), 780–788.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                        <button onclick="copyRef(this, 'Chapungo, N. J., & Postolache, O. (2025). Experimental evaluation of LoRaWAN connectivity reliability in remote rural areas of Mozambique. Sensors, 25(19), 6027. https://doi.org/10.3390/s25196027')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
                     </li>
                     <li class="pt-4 flex items-start justify-between gap-4">
                         <div class="flex items-start gap-3">
                             <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
-                            <p class="leading-relaxed">Kaur, J., &amp; Sharma, R. (2021). Reliability analysis of LoRa-based networks in IoT applications. <em>Journal of IoT Systems</em>, 5(2), 77–89.</p>
+                            <p class="leading-relaxed">
+                                Dionisio, R. P., Baldé, C., Domingos, L., Silva, A. P., Quinta-Nova, L., &amp; Sebastião, J. R. (2026). LoRaWAN and Meshtastic for off-grid monitoring in challenging rural terrain: Field evaluation and simulation. <em>Electronics</em>, 15(23), 5445.
+                                <a href="https://www.mdpi.com/2079-9292/15/23/5445" target="_blank" rel="noopener noreferrer" class="text-[#0284c7] hover:underline font-medium break-all">https://doi.org/10.3390/electronics15235445</a>
+                            </p>
                         </div>
-                        <button onclick="copyRef(this, 'Kaur, J., & Sharma, R. (2021). Reliability analysis of LoRa-based networks in IoT applications. Journal of IoT Systems, 5(2), 77–89.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                        <button onclick="copyRef(this, 'Dionisio, R. P., Baldé, C., Domingos, L., Silva, A. P., Quinta-Nova, L., & Sebastião, J. R. (2026). LoRaWAN and Meshtastic for off-grid monitoring in challenging rural terrain: Field evaluation and simulation. Electronics, 15(23), 5445. https://doi.org/10.3390/electronics15235445')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
                     </li>
                     <li class="pt-4 flex items-start justify-between gap-4">
                         <div class="flex items-start gap-3">
                             <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
-                            <p class="leading-relaxed">Martínez, C., Gómez, D., &amp; López, M. (2024). Open-source mesh networks for rural IoT deployments. <em>IEEE Internet of Things Journal</em>, 11(3), 1120–1131.</p>
+                            <p class="leading-relaxed">
+                                Lima, W. G., Lopes, A. V. R., Cardoso, C. M. M., Araújo, J. P. L., Neto, M. C. A., Tostes, M. E. L., Nascimento, A. A., Rodriguez, M., &amp; Barros, F. J. B. (2024). LoRa technology propagation models for IoT network planning in the Amazon regions. <em>Sensors</em>, 24(5), 1621.
+                                <a href="https://doi.org/10.3390/s24051621" target="_blank" rel="noopener noreferrer" class="text-[#0284c7] hover:underline font-medium break-all">https://doi.org/10.3390/s24051621</a>
+                            </p>
                         </div>
-                        <button onclick="copyRef(this, 'Martínez, C., Gómez, D., & López, M. (2024). Open-source mesh networks for rural IoT deployments. IEEE Internet of Things Journal, 11(3), 1120–1131.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                        <button onclick="copyRef(this, 'Lima, W. G., Lopes, A. V. R., Cardoso, C. M. M., Araújo, J. P. L., Neto, M. C. A., Tostes, M. E. L., Nascimento, A. A., Rodriguez, M., & Barros, F. J. B. (2024). LoRa technology propagation models for IoT network planning in the Amazon regions. Sensors, 24(5), 1621. https://doi.org/10.3390/s24051621')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
                     </li>
                     <li class="pt-4 flex items-start justify-between gap-4">
                         <div class="flex items-start gap-3">
                             <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
-                            <p class="leading-relaxed">Pérez, E., &amp; Gómez, F. (2023). Evaluación del rendimiento de redes Meshtastic en entornos rurales de difícil acceso. <em>Revista Iberoamericana de Telecomunicaciones</em>, 12(1), 45–58.</p>
+                            <p class="leading-relaxed">
+                                Lopes, I. R., Coelho, P. R. S. L., Pasquini, R., &amp; Miani, R. S. (2025). Evaluating the performance of LoRa networks: A study on disaster monitoring scenarios. <em>IoT</em>, 6(1), 14.
+                                <a href="https://doi.org/10.3390/iot6010014" target="_blank" rel="noopener noreferrer" class="text-[#0284c7] hover:underline font-medium break-all">https://doi.org/10.3390/iot6010014</a>
+                            </p>
                         </div>
-                        <button onclick="copyRef(this, 'Pérez, E., & Gómez, F. (2023). Evaluación del rendimiento de redes Meshtastic en entornos rurales de difícil acceso. Revista Iberoamericana de Telecomunicaciones, 12(1), 45–58.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                        <button onclick="copyRef(this, 'Lopes, I. R., Coelho, P. R. S. L., Pasquini, R., & Miani, R. S. (2025). Evaluating the performance of LoRa networks: A study on disaster monitoring scenarios. IoT, 6(1), 14. https://doi.org/10.3390/iot6010014')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
                     </li>
                     <li class="pt-4 flex items-start justify-between gap-4">
                         <div class="flex items-start gap-3">
                             <span class="w-6 h-6 rounded-full bg-sky-100 text-[#0f294a] font-extrabold text-xs flex items-center justify-center shrink-0 mt-0.5">5</span>
-                            <p class="leading-relaxed">Silva, A., Dos Santos, R., &amp; Pereira, M. (2021). LoRa-based architectures for disaster response and emergency relief. <em>Springer Wireless Networks</em>, 27(8), 5310–5322.</p>
+                            <p class="leading-relaxed">
+                                Meshtastic Project. (2025). <em>Meshtastic documentation: Open-source off-grid LoRa mesh communication</em>.
+                                <a href="https://meshtastic.org/docs/" target="_blank" rel="noopener noreferrer" class="text-[#0284c7] hover:underline font-medium break-all">https://meshtastic.org/docs/</a>
+                            </p>
                         </div>
-                        <button onclick="copyRef(this, 'Silva, A., Dos Santos, R., & Pereira, M. (2021). LoRa-based architectures for disaster response and emergency relief. Springer Wireless Networks, 27(8), 5310–5322.')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
+                        <button onclick="copyRef(this, 'Meshtastic Project. (2025). Meshtastic documentation: Open-source off-grid LoRa mesh communication. https://meshtastic.org/docs/')" class="text-xs font-semibold text-[#0284c7] hover:text-[#0f294a] shrink-0 px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">Copiar</button>
                     </li>
                 </ol>
             </div>
@@ -669,13 +691,13 @@
                 file: "foto1.jpg",
                 phase: "Fase 1 • Hardware",
                 title: "Ensamblaje de nodos T-Beam (ESP32 + LoRa SX1276)",
-                desc: "Integración de los cuatro módulos de desarrollo con transceptores de radiofrecuencia en la banda libre de 915 MHz."
+                desc: "Integración de los cuatro módulos de desarrollo (~Q 620/nodo) con transceptores de radiofrecuencia en la banda libre de 915 MHz."
             },
             {
                 file: "foto2.jpg",
                 phase: "Fase 1 • Hardware",
                 title: "Modificación de antenas GPS externas de 1 pulgada",
-                desc: "Sustitución de las antenas cerámicas de fábrica para optimizar la adquisición satelital en frío (TTFF menor a 60 s)."
+                desc: "Sustitución de las antenas cerámicas de fábrica para optimizar la adquisición satelital en frío (TTFF verificado de 50–55 s)."
             },
             {
                 file: "foto3.jpg",
@@ -705,30 +727,30 @@
                 file: "foto7.jpg",
                 phase: "Fase 3 • Pruebas",
                 title: "Ensayos de transmisión radial a 500 m y 800 m",
-                desc: "Validación de los primeros puntos de control alcanzando una tasa de entrega perfecta del 100 % sin pérdida de paquetes."
+                desc: "Validación de los primeros puntos de control alcanzando 100 % de entrega a 500 m (20/20) y 95 % a 800 m (19/20)."
             },
             {
                 file: "foto8.jpg",
                 phase: "Fase 3 • Pruebas",
                 title: "Evaluación de alcance a 1.0 km y 1.5 km en bosque",
-                desc: "Registro de métricas hasta el límite logístico de accesibilidad terrestre manteniendo un 80 % de efectividad."
+                desc: "Registro de métricas hasta el límite logístico de accesibilidad terrestre manteniendo 95 % a 1.0 km y 80 % a 1.5 km."
             },
             {
                 file: "foto9.jpg",
-                phase: "Resultados • Planimetria",
-                title: "Captura de planimetria en tiempo real (RSSI, SNR y Latencia)",
-                desc: "Se muestra de forma simulada la posicion de los nodos durante pruebas."
+                phase: "Resultados • Planimetría",
+                title: "Captura de planimetría en tiempo real (RSSI, SNR y Latencia)",
+                desc: "Se muestra de forma simulada la posición de los nodos durante las pruebas de campo."
             },
             {
                 file: "foto10.jpg",
                 phase: "Equipo • Cierre",
                 title: "Validación de coordenadas GPS",
-                desc: "Se obtiene la conexion GPS en cada uno de los nodos clientes."
+                desc: "Se obtiene la conexión GPS en cada uno de los nodos clientes."
             }
         ];
 
         /* =====================================================================
-           DATOS DEL SIMULADOR INTERACTIVO DE CHAJANEL (DATOS EXACTOS DEL ESTUDIO)
+           DATOS DEL EXPLORADOR INTERACTIVO DE CHAJANEL (8 ENSAYOS REALES DE TG1)
         ===================================================================== */
         const distanceData = [
             {
@@ -736,44 +758,56 @@
                 pdr: "100 %",
                 pkts: "20 / 20 mensajes",
                 rssi: "-86.5 dBm",
+                rssiSd: "DE ± 2.1 dBm",
                 snr: "+8.5 dB",
-                lat: "~806 ms",
+                snrSd: "DE ± 0.7 dB",
+                lat: "875 ms",
+                latSd: "DE ± 35.4 ms",
                 clientX: 215,
                 clientY: 122,
-                note: "<strong>Enlace óptimo en corto alcance (500 m):</strong> Recepción íntegra del 100 % de los mensajes y coordenadas GPS con margen positivo de señal sobre el ruido (+8.5 dB) y latencia inferior a 1 segundo."
+                note: "<strong>Enlace óptimo en corto alcance (500 m):</strong> Recepción íntegra del 100 % de los mensajes (20/20 en Pruebas 1 y 2) con margen positivo sobre el ruido (+8.5 dB), latencia promedio de 875 ms y cero desconexiones."
             },
             {
                 label: "800 m",
-                pdr: "100 %",
-                pkts: "20 / 20 mensajes",
+                pdr: "95 %",
+                pkts: "19 / 20 mensajes",
                 rssi: "-96.5 dBm",
+                rssiSd: "DE ± 2.1 dBm",
                 snr: "+6.5 dB",
-                lat: "~1,775 ms",
+                snrSd: "DE ± 0.7 dB",
+                lat: "1,325 ms",
+                latSd: "DE ± 176.8 ms",
                 clientX: 335,
                 clientY: 118,
-                note: "<strong>Estabilidad sostenida a 800 m:</strong> Pese a una atenuación adicional de 10 dB por el follaje de Chajanel, la red mantiene 100 % de efectividad de entrega sin desconexiones."
+                note: "<strong>Alta estabilidad a 800 m:</strong> Pese a una atenuación adicional de 10 dB por el follaje de Chajanel, la red sostiene 95 % de entrega (10/10 en Prueba 3 y 9/10 en Prueba 4) sin desconexiones y con latencia promedio de 1,325 ms."
             },
             {
                 label: "1,000 m",
                 pdr: "95 %",
                 pkts: "19 / 20 mensajes",
                 rssi: "-106.5 dBm",
+                rssiSd: "DE ± 2.1 dBm",
                 snr: "+3.5 dB",
-                lat: "~2,421 ms",
+                snrSd: "DE ± 0.7 dB",
+                lat: "2,250 ms",
+                latSd: "DE ± 212.1 ms",
                 clientX: 435,
                 clientY: 128,
-                note: "<strong>Alta resiliencia al superar el kilómetro (1,000 m):</strong> La absorción por biomasa reduce el SNR a +3.5 dB; sin embargo, 19 de 20 tramas encriptadas arriban satisfactoriamente al Router solar."
+                note: "<strong>Resiliencia sostenida al superar el kilómetro (1,000 m):</strong> La absorción por biomasa reduce el SNR a +3.5 dB; aun así, 19 de 20 tramas cifradas (10/10 en Prueba 5 y 9/10 en Prueba 6) arriban al Router solar sin cortes de enlace."
             },
             {
                 label: "1,500 m",
                 pdr: "80 %",
                 pkts: "16 / 20 mensajes",
                 rssi: "-116.5 dBm",
+                rssiSd: "DE ± 2.1 • mín. -118",
                 snr: "-3.0 dB",
-                lat: "4,000 ms (4.0 s)",
+                snrSd: "DE ± 1.4 • mín. -4.0",
+                lat: "3,800 ms",
+                latSd: "DE ± 282.8 • máx. 4.0 s",
                 clientX: 555,
                 clientY: 120,
-                note: "<strong>Límite logístico evaluado (1.5 km):</strong> Incluso con SNR negativo (-3.0 dB promedio, por debajo del piso de ruido térmico), la modulación CSS de LoRa recupera el 80 % de los mensajes. El enlace seguía activo al alcanzar el límite físico de acceso del terreno."
+                note: "<strong>Límite logístico evaluado (1.5 km):</strong> Incluso por debajo del piso de ruido térmico (-3.0 dB promedio; mínimo -4 dB en Prueba 8), la modulación CSS de LoRa recupera el 80 % de los mensajes (16/20) y autorrecupera la red tras 1 breve desconexión en la Prueba 7."
             }
         ];
 
@@ -842,7 +876,7 @@
             document.getElementById('fallback-filename').textContent = slide.file;
             document.getElementById('fallback-title').textContent = slide.title;
 
-            // Resaltar miniatura activa
+            // Resaltar miniatura activa sin mover el scroll vertical de la página
             slides.forEach((_, idx) => {
                 const thumb = document.getElementById(`thumb-${idx}`);
                 if (!thumb) return;
@@ -850,15 +884,15 @@
                     thumb.classList.add('border-[#0284c7]', 'ring-2', 'ring-sky-300', 'scale-105');
                     thumb.classList.remove('border-slate-300', 'opacity-70');
                     const thumbsContainer = document.getElementById('carousel-thumbs');
-if (thumbsContainer) {
-    const containerRect = thumbsContainer.getBoundingClientRect();
-    const thumbRect = thumb.getBoundingClientRect();
-    const offset = (thumbRect.left - containerRect.left) - (containerRect.width / 2) + (thumbRect.width / 2);
-    thumbsContainer.scrollTo({
-        left: thumbsContainer.scrollLeft + offset,
-        behavior: 'smooth'
-    });
-}
+                    if (thumbsContainer) {
+                        const containerRect = thumbsContainer.getBoundingClientRect();
+                        const thumbRect = thumb.getBoundingClientRect();
+                        const offset = (thumbRect.left - containerRect.left) - (containerRect.width / 2) + (thumbRect.width / 2);
+                        thumbsContainer.scrollTo({
+                            left: thumbsContainer.scrollLeft + offset,
+                            behavior: 'smooth'
+                        });
+                    }
                 } else {
                     thumb.classList.remove('border-[#0284c7]', 'ring-2', 'ring-sky-300', 'scale-105');
                     thumb.classList.add('border-slate-300', 'opacity-70');
@@ -927,7 +961,7 @@ if (thumbsContainer) {
         }
 
         /* =====================================================================
-           SIMULADOR INTERACTIVO DE PROPAGACIÓN EN CHAJANEL
+           EXPLORADOR INTERACTIVO DE PROPAGACIÓN EN CHAJANEL
         ===================================================================== */
         function selectDistance(index) {
             const d = distanceData[index];
@@ -961,8 +995,11 @@ if (thumbsContainer) {
             document.getElementById('metric-pdr').textContent = d.pdr;
             document.getElementById('metric-pkts').textContent = d.pkts;
             document.getElementById('metric-rssi').textContent = d.rssi;
+            document.getElementById('metric-rssi-sd').textContent = d.rssiSd;
             document.getElementById('metric-snr').textContent = d.snr;
+            document.getElementById('metric-snr-sd').textContent = d.snrSd;
             document.getElementById('metric-lat').textContent = d.lat;
+            document.getElementById('metric-lat-sd').textContent = d.latSd;
             document.getElementById('metric-note').innerHTML = d.note;
         }
 
